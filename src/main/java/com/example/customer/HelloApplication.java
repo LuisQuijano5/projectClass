@@ -36,7 +36,12 @@ public class HelloApplication extends Application {
     private List<City> cityList = new ArrayList<>();
     private List<Country> countryList = new ArrayList<>();
     private ComboBox<Country> comboCountry = new ComboBox();
-    private Button btnReset = new Button("Reset");
+    private Button btnReset = new Button("Reset");//Btn to reset ComboBox
+
+    Label lblTitle = new Label("Customers Application");
+    Label lblFilter = new Label("Filter");
+
+
     @Override
     public void start(Stage stage) throws IOException {
 
@@ -54,7 +59,7 @@ public class HelloApplication extends Application {
         initCountriesAndCities();
         initCustomers();
 
-        vbox.getChildren().add(new Text("Customer Application"));
+        vbox.getChildren().add(lblTitle);
 
         comboCountry.setItems(FXCollections.observableArrayList(countryList));
 
@@ -71,7 +76,7 @@ public class HelloApplication extends Application {
 
         HBox hbox = new HBox(5);
         hbox.setAlignment(Pos.CENTER_LEFT);
-        hbox.getChildren().addAll(new Label("Filter: "), comboCountry, btnReset);
+        hbox.getChildren().addAll(lblFilter, comboCountry, btnReset);
         vbox.getChildren().addAll(hbox);
 
         btnReset.setOnAction(handlerReset1);
@@ -119,6 +124,9 @@ public class HelloApplication extends Application {
         tblCustomer.setItems(obsList);
 
         vbox.getChildren().add(tblCustomer);
+
+        initStyles();//Callback init Label Styles
+
         return vbox;
     }
 
@@ -233,6 +241,20 @@ public class HelloApplication extends Application {
         tblCustomer.setItems(FXCollections.observableArrayList(customerList));
         comboCountry.getSelectionModel().clearSelection();
     };
+
+    //Init Styles
+    private  void initStyles(){
+        lblTitle.setStyle("-fx-font-size: 20pt; -fx-text-fill:  rgba(190,0,255,0.65); -fx-font-weight: bold");
+        lblFilter.setStyle("-fx-font-size: 20pt; -fx-text-fill:  rgba(231,17,70,0.65); -fx-font-weight: bold; -fx-font-family: 'Comic Sans MS'");
+
+        btnReset.setStyle("-fx-font-family: Arial; -fx-text-fill: #000; -fx-font-weight: bold; -fx-background-color: #d97bf8; -fx-border-color: #ffd124; -fx-border-width: 5pt; -fx-background-radius: 10pt; -fx-border-radius: 7pt");
+
+        comboCountry.setStyle("-fx-background-color: #d97bf8");
+
+        tblCustomer.setStyle("-fx-font-weight: bold");
+
+
+    }
 
     public static void main(String[] args) {
         launch();
