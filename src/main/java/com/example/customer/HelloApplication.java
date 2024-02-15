@@ -5,15 +5,23 @@ import com.example.customer.models.City;
 import com.example.customer.models.Country;
 import com.example.customer.models.Customer;
 import javafx.application.Application;
+import javafx.beans.property.Property;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -26,6 +34,7 @@ public class HelloApplication extends Application {
     private List<Address> addressList = new ArrayList<>();
     private List<City> cityList = new ArrayList<>();
     private List<Country> countryList = new ArrayList<>();
+    private ComboBox<Country> comboCountry = new ComboBox();
     @Override
     public void start(Stage stage) throws IOException {
 
@@ -38,11 +47,25 @@ public class HelloApplication extends Application {
 
     private VBox buildGUI(){
         VBox vbox = new VBox(15);
+        vbox.setAlignment(Pos.CENTER);
+
+        initCountriesAndCities();
+        initCustomers();
+
+        vbox.getChildren().add(new Text("Customer Application"));
+        comboCountry.setItems(FXCollections.observableArrayList(countryList));
+        HBox hbox = new HBox(5);
+        hbox.setAlignment(Pos.CENTER_LEFT);
+        hbox.getChildren().addAll(new Label("Filter: "), comboCountry);
+        vbox.getChildren().addAll(hbox);
 
         tblCustomer = new TableView<>();
-        TableColumn c1 = new TableColumn("ID");
-        TableColumn <Customer, String> c2= new TableColumn("FULLNAME");
-        TableColumn c3 = new TableColumn("EMAIL");
+        TableColumn <Customer, Integer> c1 = new TableColumn("ID");
+        TableColumn <Customer, String> c2 = new TableColumn("FULLNAME");
+        TableColumn <Customer, String> c3 = new TableColumn("EMAIL");
+        TableColumn <Customer, String> c4 = new TableColumn("ADDRESS");
+        TableColumn <Customer, String> c5 = new TableColumn("CITY");
+        TableColumn <Customer, String> c6 = new TableColumn("COUNTRY");
 
         c1.setCellValueFactory(new PropertyValueFactory<>("id"));
         //c2.setCellValueFactory(new PropertyValueFactory<>("firstName"));
@@ -51,12 +74,30 @@ public class HelloApplication extends Application {
                     customerData.getValue().getFirstName() + " " +
                     customerData.getValue().getLastName());
         });
-        c3.setCellValueFactory(new PropertyValueFactory<>("email"));
+        //c3.setCellValueFactory(new PropertyValueFactory<>("email"));
+        c3.setCellValueFactory((customerData) -> {
+            return new SimpleStringProperty(
+                    customerData.getValue().getEmail()
+            );
+        });
+        c4.setCellValueFactory((customerData) -> {
+            return new SimpleStringProperty(
+                    customerData.getValue().getAddress().toString()
+            );
+        });
+        c5.setCellValueFactory((customerData) -> {
+            return new SimpleStringProperty(
+                    customerData.getValue().getAddress().getCity().toString()
+            );
+        });
+        c6.setCellValueFactory((customerData) -> {
+            return new SimpleStringProperty(
+                    customerData.getValue().getAddress().getCity().getCountry().toString()
+            );
+        });
 
-        tblCustomer.getColumns().addAll(c1, c2, c3);
+        tblCustomer.getColumns().addAll(c1, c2, c3, c4, c5, c6);
 
-        initCountriesAndCities();
-        initCustomers();
         ObservableList<Customer> obsList = FXCollections.observableArrayList(customerList);
         tblCustomer.setItems(obsList);
 
