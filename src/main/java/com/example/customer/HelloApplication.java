@@ -8,16 +8,16 @@ import javafx.application.Application;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -26,6 +26,7 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.EventListener;
 import java.util.List;
 
 public class HelloApplication extends Application {
@@ -35,11 +36,12 @@ public class HelloApplication extends Application {
     private List<City> cityList = new ArrayList<>();
     private List<Country> countryList = new ArrayList<>();
     private ComboBox<Country> comboCountry = new ComboBox();
+    private Button btnReset = new Button("Reset");
     @Override
     public void start(Stage stage) throws IOException {
 
 
-        Scene scene = new Scene(buildGUI(), 320, 240);
+        Scene scene = new Scene(buildGUI(), 500, 340);
         stage.setTitle("Hello!");
         stage.setScene(scene);
         stage.show();
@@ -53,11 +55,26 @@ public class HelloApplication extends Application {
         initCustomers();
 
         vbox.getChildren().add(new Text("Customer Application"));
+
         comboCountry.setItems(FXCollections.observableArrayList(countryList));
+
+        //Applying filter
+        comboCountry.valueProperty().addListener(new ChangeListener<Country>() {
+            @Override
+            public void changed(ObservableValue<? extends Country> observable, Country country, Country selectedCountry) {
+                //sendMessage("Country select",selectedCountry.getName());
+                if(!comboCountry.getSelectionModel().isEmpty()){
+                    filerCustomers(selectedCountry.getId());
+                }
+            }
+        });
+
         HBox hbox = new HBox(5);
         hbox.setAlignment(Pos.CENTER_LEFT);
-        hbox.getChildren().addAll(new Label("Filter: "), comboCountry);
+        hbox.getChildren().addAll(new Label("Filter: "), comboCountry, btnReset);
         vbox.getChildren().addAll(hbox);
+
+        btnReset.setOnAction(handlerReset1);
 
         tblCustomer = new TableView<>();
         TableColumn <Customer, Integer> c1 = new TableColumn("ID");
@@ -72,7 +89,7 @@ public class HelloApplication extends Application {
         c2.setCellValueFactory((customerData) -> {
             return new SimpleStringProperty(
                     customerData.getValue().getFirstName() + " " +
-                    customerData.getValue().getLastName());
+                            customerData.getValue().getLastName());
         });
         //c3.setCellValueFactory(new PropertyValueFactory<>("email"));
         c3.setCellValueFactory((customerData) -> {
@@ -179,6 +196,43 @@ public class HelloApplication extends Application {
         }
 
     }
+
+
+    private void sendMessage(String title, String msg){
+        Alert message = new Alert(Alert.AlertType.CONFIRMATION);
+        message.setTitle(title);
+        message.setContentText(msg);
+        message.show();
+    }
+
+    //Filter by ID
+    private void filerCustomers(int countryId){
+
+        List<Customer> fiteredList = new ArrayList<>();
+
+        for (Customer customer:customerList){
+            if(customer.getAddress().getCity().getCountry().getId() == countryId){
+                fiteredList.add(customer);
+            }
+            tblCustomer.getItems().clear();
+            tblCustomer.setItems(FXCollections.observableArrayList(fiteredList));
+        }
+    }
+
+    //Otra forma de reprensetar un handler
+
+    /*EventHandler<ActionEvent> handlerReset = new EventHandler<>() {
+        public void handle(ActionEvent actionEvent){
+
+        }
+    };*/
+
+    //Cleaning comboBox selection
+    EventHandler<ActionEvent> handlerReset1 = (actionEvent)->{
+        tblCustomer.getItems().clear();
+        tblCustomer.setItems(FXCollections.observableArrayList(customerList));
+        comboCountry.getSelectionModel().clearSelection();
+    };
 
     public static void main(String[] args) {
         launch();
